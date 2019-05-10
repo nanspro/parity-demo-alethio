@@ -108,7 +108,55 @@ You can view our the transaction done using curl earlier in the blocks
 ## Connecting with Network Stats Dashboard
 We'll use alethio's **network stats dashboard** to view our network blocks with an amazing UI
 
-On another terminal clone the dashboard like this
+### ethstats-network-server
+First we need to start the `ethstats-network-server` from which our dashboard will fetch data.
+```
+git clone https://github.com/Alethio/ethstats-network-server
+cd ethstats-network-server
+```
+We can run the server normally or in lite-mode, for this tutorial we will use **lite-mode**
+
+There are 2 ways to start the server in lite mode.
+
+- Memory persistence - in case of a crash/restart the gathered data is lost.
+- Redis persistence - in case of a crash/resstart the gathered data is persisted into Redis.
+
+```
+cd docker/lite-mode/{choice_to_start}
+docker-compose up
+```
+
+_Note_: You can change the ports for running different components in `docker-compose.yml`
+
+### ethstats-cli
+Now we need `ethstats-cli` to fetch data from our node and pass it to network-server
+
+We'll be using docker to pull and run, to use the cli first a node is required to register
+```
+mkdir config
+docker run -d \
+--restart always \
+--net host \
+-v /home/config/:/root/.config/configstore/ \
+alethio/ethstats-cli --register --account-email your@email.com --node-name your_node_name --server-url http://localhost:3000
+```
+
+CLI Options
+
+```
+--server-url The url where our network-server is running
+--account-email Your email account (you can use it later to sign in to https://net.ethstats.io)
+--node-name name of your node
+```
+
+_Note_: The app is configured by default to connect to the Ethereum node on your local host (http://localhost:8545). To connect to a node running on a different host use flag `--client-url`.
+
+Now we have ethstats-cli running in a container, fetching data from our node and passing it to network-server 
+
+Finally it's time to setup our dashboard
+
+### ethstats-network-dashboard
+On another terminal run
 ```
 git clone git@github.com:Alethio/ethstats-network-dashboard.git
 cd ethstats-network-dashboard
@@ -120,8 +168,17 @@ Build<br/>
 `npm run build`
 
 Copy the default config into dev config like this `cp config.js.example config.js`
-Open the config.dev.json and change the `DS_URL = 'http://127.0.0.1:8545'` to connect to your network.
 
-Run `npm start` now and in a new tab a explorer will open showing network stats for the network like this
+_Note_: You can change the port in config.js or pass it as flag while running like this `npm start --port 4040`
+
+Run `npm start --port 4040` now and in a new tab a explorer will open showing network stats for the network like this
+
+![dashboard](./static/dashboard.png)
+
+
+## License
+
+MIT &copy; [Alethio](https://aleth.io)
+
 
 
