@@ -1,8 +1,9 @@
-# Getting started with Parity
+# Visualizing and Monitoring blockchain using Alethio's tools
+This tutorial aims to introduce people to alethio's tools such as "ethereum-lite-explorer" and "ethstats-network-dashboard" to help them visualize blockchain data with a clean and beautiful UI. We'll be integrating a block explorer and a network monitor dashboard for our private network created using any RPC enable client. In this tutorial we'll be using parity-ethereum to setup a local private network.
 
-This tutorial uses parity-ethereum to run a private client network locally and connects it to alethio's block explorer(Ethereum Lite Explorer) and monitoring (Ethstats) platform.
+After going through this tute any user should be able to setup a node and also deploy a network of nodes locally (in this case parity) and will be able to connect block explorer and network monitoring tools with it.  
 
-Prerequisites
+**Prerequisites**<br/>
 To run this tutorial, you must have the following installed:
 
 - Linux
@@ -10,7 +11,7 @@ To run this tutorial, you must have the following installed:
 - Docker and Docker-compose
 
 ## Setting up parity Node
-First let's see how you can set up a private node, we'll be building parity-ethereum from source for this
+First let's see how to set up a private node, we'll be building parity-ethereum from source for this
 
 ### Building from source
 
@@ -105,33 +106,41 @@ You can view our the transaction done using curl earlier in the blocks
 ![Block](./static/block.png)
 
 
-## Connecting with Network Stats Dashboard
-We'll use alethio's **network stats dashboard** to view our network blocks with an amazing UI
+## Connecting with EthStats Dashboard
+We'll use alethio's **ethstats dashboard** to monitor and analyze our private network with an amazing UI
 
-### ethstats-network-server
-First we need to start the `ethstats-network-server` from which our dashboard will fetch data.
+### EthStats Server
+A network monitoring server from which our dashboard will fetch data.
+
 ```
 git clone https://github.com/Alethio/ethstats-network-server
 cd ethstats-network-server
 ```
-We can run the server normally or in lite-mode, for this tutorial we will use **lite-mode**
 
+We can run the server normally or in lite-mode, for this tutorial we will use **lite-mode** for a quick and smooth setup.<br/>
 There are 2 ways to start the server in lite mode.
 
-- Memory persistence - in case of a crash/restart the gathered data is lost.
-- Redis persistence - in case of a crash/resstart the gathered data is persisted into Redis.
+- Memory/No persistence - in case of a crash/restart the gathered data is lost.
+- Redis/With persistence - in case of a crash/restart the gathered data is persisted into Redis.
 
 ```
 cd docker/lite-mode/{choice_to_start}
 docker-compose up
 ```
 
-_Note_: You can change the ports for running different components in `docker-compose.yml`
+Running server in lite-mode with or without persistence pulls some dependencies and runs them in background
+- **ethstats dashboard**: Front-end application for the EthStats Network Statistics tool  
+- Third party dependency **deepstream**: A new type of open source server that syncs data and sends events across millions of clients in real time 
 
-### ethstats-cli
-Now we need `ethstats-cli` to fetch data from our node and pass it to network-server
+If we are running the server with persistence then our `docker-compose` will pull one more dependency 
 
-We'll be using docker to pull and run, to use the cli first a node is required to register
+- **Redis**: It is an open source, in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists etc.
+
+### EthStats-CLI
+
+The application connects to your Ethereum node through RPC and extract data that will be sent to the EthStats Server for analytics purposes. To use the cli first a node is required to register.
+
+We'll be using docker to pull and run
 ```
 mkdir config
 docker run -d \
@@ -151,29 +160,16 @@ CLI Options
 
 _Note_: The app is configured by default to connect to the Ethereum node on your local host (http://localhost:8545). To connect to a node running on a different host use flag `--client-url`.
 
-Now we have ethstats-cli running in a container, fetching data from our node and passing it to network-server 
+Now we have ethstats-cli running in a container and is ready to send data, we'll need to start our EthStats Server to fetch data from this CLI.
 
-Finally it's time to setup our dashboard
+### Accessing EthStats Dashboard
 
-### ethstats-network-dashboard
-On another terminal run
-```
-git clone git@github.com:Alethio/ethstats-network-dashboard.git
-cd ethstats-network-dashboard
-```
-Install dependencies<br/>
-`npm install`
-
-Build<br/>
-`npm run build`
-
-Copy the default config into dev config like this `cp config.js.example config.js`
-
-_Note_: You can change the port in config.js or pass it as flag while running like this `npm start --port 4040`
-
-Run `npm start --port 4040` now and in a new tab a explorer will open showing network stats for the network like this
+Now that our server is up and running along with EthStats CLI, it will fetch the data from CLI and pass it to dashboard, dashboard is also running in parallel so just go to "http://localhost:8080" and you can see our dashboard analyzing our private network like this.
 
 ![dashboard](./static/dashboard.png)
+
+
+_Note: You can change the ports for running different components in `docker-compose.yml`, also read more about third party dependencies like [deepstream](https://github.com/deepstreamIO/deepstream.io), [redis](https://redis.io/) and see how they works_. 
 
 
 ## License
