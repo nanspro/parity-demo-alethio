@@ -169,7 +169,7 @@ Now that our server is up and running along with EthStats CLI, it will fetch the
 ![dashboard](./static/dashboard.png)
 
 
-_Note: You can change the ports for running different components in `docker-compose.yml`, also read more about third party dependencies like [deepstream](https://github.com/deepstreamIO/deepstream.io), [redis](https://redis.io/) and see how they works_. 
+_Note: You can change the ports for running different components in `docker-compose.yml`, also read more about third party dependencies like [deepstream](https://deepstreamhub.com/open-source/), [redis](https://redis.io/) and see how they works_. 
 
 
 ## License
